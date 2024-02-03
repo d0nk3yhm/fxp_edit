@@ -45,8 +45,8 @@ sys
 
 ------------------------------------------------------------------------------
 
-vstplugin.py and aeffect.py is based on PyVST, and is licensed under GPL-3.0
-
+vstplugin.py and aeffect.py is based on PyVST (https://github.com/mbrucher/PyVST) , and is licensed under GPL-3.0
+- (added functionallity)
 
 #License:
 
