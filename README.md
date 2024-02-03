@@ -40,8 +40,9 @@ sys
 # How to run:
 
 
-1.python server.py  ( in backend folder )
-2.go to http://localhost:5000
+1. python server.py  ( in backend folder )
+
+2. go to http://localhost:5000 using your web browser.
 
 3.
 
