@@ -1,6 +1,6 @@
 # fxp_edit
 
-A webservice project for editing, randomizing and listening to fxp files parameters. Spesifically for Serum presets. ( easily modified to use other vst2 plugins )
+A webservice project for editing, randomizing and listening to fxp presets, while changing parameters. Spesifically for Serum presets. ( easily modified to use other vst2 plugins )
 
 ![image](https://github.com/d0nk3yhm/fxp_paramEdit/assets/1066032/9e0b9cc9-6ffd-4931-9be4-6f11599fba43)
 
