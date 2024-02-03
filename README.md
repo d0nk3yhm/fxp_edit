@@ -1,6 +1,7 @@
 # fxp_paramEdit
 A webservice project for editing fxp files parameters
-![image](https://github.com/d0nk3yhm/fxp_paramEdit/assets/1066032/4ea1ce44-edc0-430a-b13e-1940ab208869)
+![image](https://github.com/d0nk3yhm/fxp_paramEdit/assets/1066032/9e0b9cc9-6ffd-4931-9be4-6f11599fba43)
+
 
 
 Download cli-based vst 2.x host (mrswatson64.exe) from here:
