@@ -1,4 +1,8 @@
-from flask import Flask, request, send_file, jsonify, render_template
+import threading
+import time
+import uuid
+from flask import Flask, request, send_file, abort, jsonify, render_template
+
 import os
 import hashlib
 import struct
@@ -54,8 +58,8 @@ def extract_parameters(plugin, total_params=500):
 def upload_fxp():
     if 'fxp-file' in request.files:
         fxp_file = request.files['fxp-file']
-        hash_suffix = hashlib.sha256(os.urandom(32)).hexdigest()[:8]
-        fxp_file_name = f'original_{hash_suffix}.fxp'
+        unique_id = uuid.uuid4().hex
+        fxp_file_name = f'original_{unique_id}.fxp'
         fxp_file_path = os.path.join(temp_files_dir, fxp_file_name)
         fxp_file.save(fxp_file_path)
 
@@ -63,24 +67,37 @@ def upload_fxp():
         header_data = list(fxp_data[:60])
         chunk_data = list(fxp_data[60:])
 
-        json_file_name = f'data_{hash_suffix}.json'
+        json_file_name = f'data_{unique_id}.json'
         json_file_path = os.path.join(json_files_dir, json_file_name)
-        data = {"header": header_data, "parameters": extract_parameters(plugin), "chunk": chunk_data}
+
+        parameters = extract_parameters(plugin)  # directly return the dictionary of parameters
+
+        data = {
+            "header": header_data,
+            "parameters": parameters,
+            "chunk": chunk_data
+        }
+
         with open(json_file_path, 'w') as json_file:
             json.dump(data, json_file, indent=4)
 
-        # Return both parameters and json_file_name to frontend
-        return jsonify({"parameters": extract_parameters(plugin), "json_file_name": json_file_name})
-
+        return jsonify({
+            "parameters": parameters,
+            "json_file_name": json_file_name,
+            "unique_id": unique_id
+        })
     else:
-        return {"message": "No FXP file provided"}, 400
+        return jsonify({"message": "No FXP file provided"}), 400
+
+
 
 
 
 
 def generate_fxp(json_file_path, modified_fxp_file_path):
+    print(f"(inside generate_fxp) Processing: json_file_path: {json_file_path}, modified_fxp_file_path: {modified_fxp_file_path}")
+    app.logger.info(f"(inside generate_fxp) Processing: json_file_path: {json_file_path}, modified_fxp_file_path: {modified_fxp_file_path}")
     try:
-        # Call fxp_generator.py as a subprocess
         process = subprocess.Popen(
             ['python', 'fxp_generator.py', json_file_path, modified_fxp_file_path],
             stdout=subprocess.PIPE,
@@ -88,15 +105,20 @@ def generate_fxp(json_file_path, modified_fxp_file_path):
         )
         stdout, stderr = process.communicate()
 
+        # Log stdout for debugging subprocess output
+        if stdout:
+            app.logger.info(f"FXP Generator subprocess stdout: {stdout.decode().strip()}")
+
         if process.returncode != 0:
-            # Handle any errors that occurred in the subprocess
             error_message = stderr.decode().strip()
+            app.logger.error(f"FXP Generator subprocess error: {error_message}")
             return {"message": f"Error generating FXP: {error_message}"}, 500
 
-        # If the subprocess completed successfully, send the generated FXP file
-        return send_file(modified_fxp_file_path, as_attachment=True)
+        return True
     except Exception as e:
+        app.logger.error(f"Exception in FXP Generator subprocess: {e}")
         return {"message": f"Error generating FXP: {str(e)}"}, 500
+
 
 
 
@@ -104,43 +126,99 @@ def generate_fxp(json_file_path, modified_fxp_file_path):
 
 @app.route('/api', methods=['POST'])
 def api_endpoint():
-    if request.is_json:
-        json_data = request.get_json()
-        print(f"Incoming JSON data: {json_data}")
-        json_file_name = json_data.get('json_file_name', '')
-        updated_parameters = json_data.get('parameters', {}).get('parameters', {})
+    if not request.is_json:
+        app.logger.error("Request body is not JSON")
+        return jsonify(message="Request must be JSON"), 400
 
-        print(f"Received update for {json_file_name}: {updated_parameters}")
+    json_data = request.get_json()
+    #app.logger.debug(f"Received JSON data: {json_data}")
 
-        json_file_path = os.path.join(json_files_dir, json_file_name)
-        if not os.path.exists(json_file_path):
-            return {"message": "JSON file not available"}, 400
+    listen_only = json_data.get('listen', False)
+    json_file_name = json_data.get('json_file_name', '')
+    updated_parameters = json_data.get('parameters', {})
+    unique_id = json_data.get('unique_id', str(uuid.uuid4().hex))
 
-        # Load the original JSON data
+    json_file_path = os.path.join(json_files_dir, json_file_name)
+    if not os.path.exists(json_file_path):
+        app.logger.error(f"JSON file not available: {json_file_path}")
+        return jsonify(message="JSON file not available"), 400
+
+    try:
         with open(json_file_path, 'r') as json_file:
             data = json.load(json_file)
-
-        # Replace the entire 'parameters' section with the updated parameters
         data['parameters'] = updated_parameters
 
-        print(f"Updated parameters to be saved: {data['parameters']}")
-
-        # Save the updated JSON data back to the file
         with open(json_file_path, 'w') as json_file:
             json.dump(data, json_file, indent=4)
+    except Exception as e:
+        app.logger.error(f"Error processing JSON file: {e}")
+        return jsonify(message="Error processing JSON file"), 500
 
-        print(f"Updated parameters saved.")
+    modified_fxp_file_name = f'{unique_id}_modified.fxp'
+    app.logger.info(f"modified_fxp_file_name: {modified_fxp_file_name}")
+    modified_fxp_file_path = os.path.join(modified_fxp_dir, modified_fxp_file_name)
+    app.logger.info(f"modified_fxp_file_path: {modified_fxp_file_path}")
 
-        # Generate the FXP file
-        modified_fxp_file_name = f'modified_{hashlib.sha256(os.urandom(32)).hexdigest()[:8]}.fxp'
-        modified_fxp_file_path = os.path.join(modified_fxp_dir, modified_fxp_file_name)
-        generate_fxp(json_file_path, modified_fxp_file_path)
+    app.logger.info(f"Sending to generate_fxp: {json_file_path} {modified_fxp_file_path}")
+    try:
+        result = generate_fxp(json_file_path, modified_fxp_file_path)
+        if isinstance(result, tuple):
+            app.logger.error(f"FXP generation error: {result[0]}")
+            return jsonify(result[0]), result[1]
+    except Exception as e:
+        app.logger.error(f"Unhandled exception in FXP generation: {e}")
+        return jsonify(message="Error generating FXP"), 500
 
-        return send_file(modified_fxp_file_path, as_attachment=True)
+    if listen_only:
+        app.logger.info(f"FXP modifications applied for listening. unique_id: {unique_id}")
+        return jsonify({"message": "FXP modifications applied for listening.", "unique_id": unique_id})
     else:
-        return {"message": "Request must be JSON"}, 400
+        app.logger.info(f"Sending modified FXP file: {modified_fxp_file_path}")
+        return send_file(modified_fxp_file_path, as_attachment=True)
+
+    
+
+@app.route('/play', methods=['GET'])
+def play_note():
+    note = request.args.get('note')
+    duration = request.args.get('duration', '500')  # Default duration
+    unique_id = request.args.get('unique_id')
+
+    # Validate the required parameters
+    if not note:
+        return jsonify(message="Note parameter is missing"), 400
+    if not duration:
+        return jsonify(message="Duration parameter is missing"), 400
+    if not unique_id:
+        return jsonify(message="Unique ID parameter is missing"), 400
+    
+    if not note or not unique_id:
+        abort(400, 'Missing required parameters.')
+
+    midi_file = f"piano/note_{note}_{duration}.mid"
+    app.logger.info(f"midi_file: {midi_file}")
+    output_wav = os.path.join(temp_files_dir, f"{unique_id}_note_{note}_{duration}.wav")
+    app.logger.info(f"output_wav: {output_wav}")
+    fxp_file_path = os.path.join(modified_fxp_dir, f"{unique_id}_modified.fxp")
+    app.logger.info(f"fxp_file_path: {fxp_file_path}")
+    if not os.path.exists(fxp_file_path):
+        abort(404, 'Adjusted FXP file not found.')
+
+    cmd = f"mrswatson64.exe --midi-file {midi_file} --output {output_wav} --plugin Serum_x64.dll,{fxp_file_path}"
+    subprocess.call(cmd, shell=True)
+
+    threading.Thread(target=delayed_delete, args=(output_wav, 10)).start()
+
+    return send_file(output_wav, as_attachment=False)
 
 
+def delayed_delete(file_path, delay):
+    time.sleep(delay)
+    try:
+        os.remove(file_path)
+        print(f"Deleted {file_path}")
+    except Exception as e:
+        print(f"Error deleting {file_path}: {e}")
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

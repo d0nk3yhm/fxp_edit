@@ -1,0 +1,171 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  .set {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+    padding: 0;
+  }
+  
+  .set li {
+    cursor: pointer;
+  }
+  
+  .white {
+    background-color: #fff;
+    /* border: 1px solid #000; */
+    height: 120px;
+    /* width: 23px; */
+    z-index: 1;
+    height: 5em;
+    width: 1.2em;
+    z-index: 1;
+    border-left: 1px solid #bbb;
+    border-bottom: 1px solid #bbb;
+    border-radius: 0 0 5px 5px;
+    box-shadow: -1px 0 0 rgba(255,255,255,0.8) inset, 0 0 5px #ccc inset, 0 0 3px rgba(0,0,0,0.2);
+    background: linear-gradient(to bottom,#eee 0%,#fff 100%);
+  }
+  
+  .black {
+    background-color: #000;
+    border: 1px solid #000;
+    height: 80px;
+    left: 0.6em;
+    width: 15px;
+    margin-left: -7.5px;
+    z-index: 2;
+    position: relative;
+    height: 3.1em;
+    /* width: 0.9em; */
+    margin: 0 0 0 -1em;
+    z-index: 2;
+    border: 1px solid #000;
+    border-radius: 0 0 3px 3px;
+    box-shadow: -1px -1px 2px rgba(255,255,255,0.2) inset, 0 -5px 2px 3px rgba(0,0,0,0.6) inset, 0 2px 4px rgba(0,0,0,0.5);
+    background: linear-gradient(45deg,#222 0%,#555 100%);
+}
+  
+.key { 
+  cursor: hand; 
+  transition: background-color 1.5s ease; /* Transition effect for the gradual change */
+}
+/* duration button START*/
+.duration-button { 
+  height: 0.9em;
+  color: #f5deb34f;
+}
+
+.duration-button.active { 
+  font-weight: bold;
+  color: white;
+  background-color: #eb7909;
+  /* border-radius: 25%; */
+  background: linear-gradient(179deg,#2d2d2d 0%,#ff6200 136%);
+} 
+.pushable:active .front {
+  transform: translateY(-2px);
+}
+
+.front {
+  display: block;
+  padding: 7px 16px;
+  /* border-radius: 10%; */
+  border-radius: 0% 0% 0% 0%;
+  font-size: 1.25rem;
+  background: hsl(0deg 0% 0% / 51%);
+  color: white;
+  transform: translateY(-4px);
+}
+
+.pushable {
+  background: hsl(22.63deg 100% 95.51% / 10%);
+  border-radius: 0%;
+  border: none;
+  padding: 0px;
+  cursor: pointer;
+  outline-offset: 4px;
+}
+/* duration button END */
+
+.durationLabel{
+  position: sticky;
+  margin-top: -2.7em;
+  font-size: 0.7em;
+  font-weight: bold;
+  color: #f5deb34f;
+  margin-left: 13.2em;
+  margin-bottom: 2.8em;
+  padding-top: 0em;
+
+}
+
+.key.active {
+  background: linear-gradient(to bottom,#ffffff 0%,#ff6200 100%)!important;
+  box-shadow: none!important; /* or any color that indicates the key is pressed */
+}
+
+#durationButtons { 
+  position: relative;
+  padding-top: 1em;
+}
+
+.currentNote {
+  position: absolute;
+  margin-left: 18.5em;
+  font-size: 1.6em;
+  font-weight: bold;
+  color: #ff7018;
+  text-shadow: 0 0 7px #77624c, 
+  0 0 10px #000, 
+  0 0 21px #000, 
+  0 0 42px #ff5900, 
+  0 0 82px #0fa0, 
+  0 0 92px #f80, 
+  0 0 102px #ff6a00, 
+  0 0 150px #ef6300;
+}
+
+
+.key.active-immediate {
+  background: #ff6200; /* Immediate feedback color */
+}
+
+.key.active-gradual {
+  transition: background 1.5s ease 1.1s; /* Delay the start of the transition */
+  background: #ff6200; /* Target state after transition */
+}
+.key.active-gradual {
+  background: linear-gradient(to bottom,#ff6200 0%,#ffffff 100%)!important;
+}
+
+.pianobox {
+  position: fixed;
+  /* background: radial-gradient(black, transparent); */
+  background: linear-gradient(180deg,#101010 0%,#ff680f00 384%);
+  width: 62em;
+  padding-left: 1em;
+  border: #f5deb338 1px;
+  border-style: dotted;
+  bottom: 4em;
+  z-index: 100;
+}
+
+
+.applyButton {
+  position: sticky;
+  margin-top: -3.5em;
+  font-weight: bold;
+  margin-left: 56em;
+  margin-bottom: 2.2em;
+  padding-top: 0em;
+  margin-top: -3.1em;
+  width: 10.8em!important;
+  font-size: 0.9em!important;
+  box-shadow: 0 0 2px #997126;
+  color: #ff7800;
+  padding: 0.1em 2.5em!important;
+}

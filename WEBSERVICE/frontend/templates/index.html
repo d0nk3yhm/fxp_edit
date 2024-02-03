@@ -3,11 +3,31 @@
 <head>
     <title>fxp parameter editor</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/pianostyle.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
 </head>
 <body>
     <header>
         <h1 class="neon-header">fxp parameter editor</h1>
     </header>
+
+
+    <div class="pianobox">
+        <div id="durationButtons">
+            <div class="currentNote"></div>
+            <button class="duration-button pushable" data-duration="500"><span class="front"></span>0.5s</span></button>
+            <button class="duration-button pushable" data-duration="1000"><span class="front"></span>1s</span></button>
+            <button class="duration-button pushable" data-duration="2000"><span class="front"></span>2s</span></button>
+            <button class="duration-button pushable" data-duration="5000"><span class="front"></span>5s</span></button>
+            <p class="durationLabel">duration</p>
+            <div id="statusIndicator" class="status-indicator"></div>
+            <p id="applylisten" class="applyButton btn">Apply fxp</p>
+        </div>
+        <ul class="set" id="piano"></ul>
+    </div>
+
+
     <div id="list1" class="dropdown-check-list" tabindex="100">
         <span class="anchor">Select Items</span>
         <ul class="items">
@@ -20,18 +40,18 @@
         <input type="range" id="max-slider" min="0" max="100" value="100">
     </div>
     <div class="buttons">
-        <button id="randomize-button">Randomize</button> 
-        <button id="reset-button">Reset</button>    
+        <button class="btn" id="randomize-button">Randomize</button> 
+        <button class="btn" id="reset-button">Reset</button>    
         
     </div>
 
     <div class="buttons2">
         <input type="file" id="file-upload" accept=".fxp" style="display: none;">
-        <button id="upload-button">Upload FXP</button>
-        <button id="download-button">Download modified FXP</button>
+        <button class="btn" id="upload-button">Upload FXP</button>
+        <button class="btn" id="download-button">Download modified FXP</button>
     </div>
     <div class="knobs-wrapper">
-        <!-- Knob containers here -->
+        <!-- Knob containers here. This is how it will be populated by javascript: -->
     
 
  <!--  First Knob Container 
@@ -56,5 +76,6 @@
 -->  
 </div>
     <script src="/static/script.js"></script>
+    <script src="/static/pianoscript.js"></script>
 </body>
 </html>

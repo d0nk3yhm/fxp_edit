@@ -217,7 +217,7 @@ body {
 
   }
 
-    button {
+    .btn {
         width: 10em;
         padding: 0.2em 2.5em;
         margin-top: 0.6em;
@@ -302,4 +302,27 @@ body {
   color: #ffffff;
   width: 9.4em;
   border: 0px;
+}
+
+.status-indicator {
+  position: sticky;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: red;
+  margin: 10px;
+  margin-left: 59em;
+  bottom: 12.4em;
+  z-index: 101;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.8); /* Red glow */
+}
+
+.status-indicator.green {
+  background-color: green;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.8); /* Green glow */
+}
+
+.status-indicator.yellow {
+  background-color: yellow;
+  box-shadow: 0 0 8px rgba(255, 255, 0, 0.8); /* Yellow glow */
 }

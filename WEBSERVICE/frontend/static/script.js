@@ -2,10 +2,10 @@ var initialKnobValues = {};
 var jsonData = {};
 var data = {};
 var paramNameToIndexMap = {};
+var uniqueId = null;
 
 document.addEventListener("DOMContentLoaded", function() {
     jsonData = { "parameters": {} };
-    //var jsonData = '{"MasterVo": 0.699999988079071, "A Vol": 0.75, "A Pan": 0.5}'; // JSON string
 
    // Process the new JSON structure
    var data = {};
@@ -24,8 +24,10 @@ document.addEventListener("DOMContentLoaded", function() {
     // Create "All" and "None" buttons
     var allButton = document.createElement('button');
     allButton.textContent = 'All';
+    allButton.className = 'btn';
     var noneButton = document.createElement('button');
     noneButton.textContent = 'None';
+    noneButton.className = 'btn'; 
 
     // Add event listener to the search box
     document.getElementById('search-box').addEventListener('input', function() {
@@ -79,7 +81,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 knobContainer.style.display = this.checked ? '' : 'none';
             }
             var newJson = generateCheckedJson();
-            console.log("Updated JSON:", newJson);
+            updateStatusIndicator('yellow');
+          //  console.log("Updated JSON:", newJson);
         };
         li.appendChild(checkbox);
         li.appendChild(document.createTextNode(' ' + key));
@@ -93,6 +96,46 @@ document.addEventListener("DOMContentLoaded", function() {
         setupKnob(knobContainer, key, index, data[key]);
     });
 
+        function updateStatusIndicator(color) {
+            var indicator = document.getElementById('statusIndicator');
+            indicator.className = 'status-indicator ' + color; // Sets the appropriate color class
+        }
+
+        // Event listener for the applylisten button
+        document.getElementById("applylisten").addEventListener("click", function() {
+            var currentJson = generateCheckedJson(); // Assuming this function generates the current state of your UI into a JSON structure
+            var jsonFileName = window.localStorage.getItem('jsonFileName'); // Retrieve json_file_name
+            uniqueId = window.localStorage.getItem('uniqueId'); // Retrieve the unique_id stored earlier
+        
+            // Adjust the body of the request to include unique_id and listen flag
+            var requestBody = {
+                parameters: currentJson,
+                json_file_name: jsonFileName,
+                unique_id: uniqueId, // Include the unique_id in the request
+                listen: true // Indicate that this request is for listening, not downloading
+            };
+            // see how the request body looks like:
+            //console.log("Sending request body:", JSON.stringify(requestBody, null, 2));
+
+            fetch('/api', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                // Optionally, update UI or state to indicate the FXP has been applied for listening
+                console.log('FXP applied successfully, ready for listening.');
+                updateStatusIndicator('green');
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+        });
 
     function filterListItems(searchTerm) {
         const ul = document.getElementById('list1').querySelector('.items');
@@ -162,7 +205,8 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     
         var newJson = generateCheckedJson();
-        console.log("Updated JSON:", newJson);
+       // console.log("Updated JSON:", newJson);
+        updateStatusIndicator('yellow');
     });
 
         
@@ -189,7 +233,8 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     
         var newJson = generateCheckedJson();
-        console.log("Reset to manual JSON:", newJson);
+        updateStatusIndicator('yellow');
+        //console.log("Reset to manual JSON:", newJson);
     }
     
     
@@ -203,8 +248,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const neonRing = container.querySelector('.neon-ring'); // Adjust selector if necessary
         createNeonEffect(neonRing, key, index);
-        console.log(knob); // Check if the knob element is correctly selected
-        console.log(neonRing);
+        //console.log(knob); // Check if the knob element is correctly selected
+        //console.log(neonRing);
         if (!neonRing) {
             console.error('Neon ring element not found in container', container);
             return; // Exit the function if neon ring is not found
@@ -215,10 +260,10 @@ document.addEventListener("DOMContentLoaded", function() {
             return; // Exit the function if knob is not found
         }
 
-        console.log('Knob:', key);
-        console.log('Neon Ring:', neonRing);
+        //console.log('Knob:', key);
+        //console.log('Neon Ring:', neonRing);
         const path = neonRing.querySelector('path');
-        console.log('Path:', path);
+        //console.log('Path:', path);
 
         const movablePlate = container.querySelector('.movable-plate');
        // const neonRing = container.querySelector('.static-plate div:first-child');
@@ -286,7 +331,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 // Generate and log the updated JSON for checked items
                 var newJson = generateCheckedJson();
-                console.log("Updated JSON:", newJson);
+                //console.log("Updated JSON:", newJson);
+                updateStatusIndicator('yellow');
 
                 // Update neon effect and movable plate
                 updateNeonEffect((angle - minAngle) / rotationRange, neonRing, key, index);
@@ -327,15 +373,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         });
-        return { "parameters": checkedData };
+        return checkedData;
     }
     
-    
-    
-    
-    
-    
-    
+
     
     function createKnobContainer(key, value, index) {
         const knobContainer = document.createElement('div');
@@ -462,7 +503,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (path) {
             path.setAttribute('stroke-dasharray', `${neonLength} ${totalLength - neonLength}`);
         } else {
-            console.log('DEBUG #neonPath-' + sanitizedKey + '-' + index);
+          //  console.log('DEBUG #neonPath-' + sanitizedKey + '-' + index);
             console.error('Path element not found in neon ring', neonRing);
         }
     }
@@ -484,10 +525,10 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(response => response.json())
             .then(data => {
-                console.log("Response data:", data);  // Log actual response data
-              //  jsonData = processJsonResponse(data.parameters); // Process only parameters
+              //  console.log("Response data:", data);
                 jsonData = processJsonResponse(data);
-                window.localStorage.setItem('jsonFileName', data.json_file_name); // Store the JSON file name in localStorage
+                window.localStorage.setItem('jsonFileName', data.json_file_name); // Store the JSON file name
+                window.localStorage.setItem('uniqueId', data.unique_id); // Store the unique_id for later use
                 initializeOrUpdateUI(jsonData);
             })
             .catch(error => console.error('Error:', error));
@@ -535,7 +576,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     function processJsonResponse(responseData) {
 
-        console.log("processJsonResponse ResponseData:", responseData.parameters); // Log actual response data
+       // console.log("processJsonResponse ResponseData:", responseData.parameters); // Log actual response data
         // Reset jsonData with new structure
         jsonData = { "parameters": {} };
     
@@ -593,19 +634,17 @@ document.addEventListener("DOMContentLoaded", function() {
         // Update the checkbox list
         updateCheckboxList(data);
 
-        // Add debugging code here
-        console.log("Data keys:", Object.keys(data));
+       // console.log("Data keys:", Object.keys(data));
         document.querySelectorAll('.dropdown-check-list ul.items input[type="checkbox"]').forEach(function(checkbox) {
             var liElement = checkbox.parentNode;
             //console.log("Checkbox label:", liElement.textContent.trim());
         });
     }
 
-    // Optionally, you can also place similar debugging code in event listeners
-    document.getElementById("randomize-button").addEventListener("click", function() {
-        // Existing code for randomization...
 
-        // Add debugging code here to check state after randomization
+    document.getElementById("randomize-button").addEventListener("click", function() {
+
+        // check state after randomization
        // console.log("Data keys after randomization:", Object.keys(data));
         document.querySelectorAll('.dropdown-check-list ul.items input[type="checkbox"]').forEach(function(checkbox) {
             var liElement = checkbox.parentNode;
@@ -615,7 +654,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
 
 // Ensure that the keys used in the script match those in jsonData
-console.log("Keys in jsonData:", Object.keys(jsonData));
+//console.log("Keys in jsonData:", Object.keys(jsonData));
     
 function updateCheckboxList(data) {
     var ul = document.getElementById('list1').querySelector('.items');
@@ -642,10 +681,5 @@ function updateCheckboxList(data) {
         ul.appendChild(li);
     });
 }
-
-    
-    // Call function when data from the file upload is retrieved from backend api.
-    // Example: initializeOrUpdateUI(processedJsonData);
-    
        
 });

@@ -21,7 +21,7 @@ def generate_fxp(plugin, parameters, fxp_output_path):
     chunk_magic = b"CcnK"
     fx_magic = b"FPCh"
     version = 1
-    fx_id = 0x58667358  # Replace with actual plugin ID
+    fx_id = 0x58667358  # Replace with actual plugin ID ( 0x58667358 is the ID for Serum )
     fx_version = 1
     num_programs = 1
     name = "PresetName".encode("ascii")  # Replace with desired preset name
@@ -60,7 +60,7 @@ def main(json_file_path, fxp_output_path):
         print(f"An error occurred: {e}")
     finally:
         try:
-            # plugin.close()
+            # plugin.close() # not working. doesn't matter for now
             print("Plugin closed successfully.")
         except Exception as close_exception:
             print("Error closing the plugin:", close_exception)
