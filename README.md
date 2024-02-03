@@ -44,9 +44,8 @@ sys
 
 2. go to http://localhost:5000 using your web browser.
 
-3.
+3.You might have to make these folders inside the "backend" folder:
 
-You might have to make these folders inside the "backend" folder:
 "temp_files"
 "modified_fxp_files"
 "json_files"
