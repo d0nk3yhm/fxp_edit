@@ -7,12 +7,12 @@ A webservice project for editing, randomizing and listening to fxp files paramet
 Download cli-based vst 2.x host (mrswatson64.exe) from here:
 https://github.com/teragonaudio/MrsWatson/tree/master/bin/Windows
 
--> Download it and paste it into the backend folder.
+-> Download it and paste it into the "backend" folder.
 
 Download the demo: Serum plugin (Serum_x64.dll) from here: 
 https://xferrecords.com/products/serum
 
--> Install it, and locate the dll, and paste it into the backend folder.
+-> Install it, and locate the Serum_x64.dll, then copy and paste it into the "backend" folder.
 
 
 python dependencies:
