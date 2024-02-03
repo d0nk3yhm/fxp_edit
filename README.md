@@ -43,6 +43,13 @@ sys
 1.python server.py  ( in backend folder )
 2.go to http://localhost:5000
 
+3.
+
+You might have to make these folders inside the "backend" folder:
+"temp_files"
+"modified_fxp_files"
+"json_files"
+
 ------------------------------------------------------------------------------
 
 vstplugin.py and aeffect.py is based on PyVST (https://github.com/mbrucher/PyVST) , and is licensed under GPL-3.0
