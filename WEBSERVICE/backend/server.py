@@ -44,6 +44,15 @@ plugin_path = './Serum_x64.dll'
 plugin = vstplugin.VSTPlugin(plugin_path)
 plugin.open()
 
+
+print("-------------------------------------------------------------")
+print("FXP Edit Copyright (C) 2024 d0nk3yhm")
+print("This program comes with ABSOLUTELY NO WARRANTY.")
+print("This is free software, and you are welcome to redistribute it")
+print("under certain conditions. see http://www.gnu.org/licenses/")
+print("-------------------------------------------------------------")
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
